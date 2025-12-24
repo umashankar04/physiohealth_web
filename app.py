@@ -329,12 +329,12 @@ async def get_clinic_info():
     }
 
 # Serve static files
-app.mount("/", StaticFiles(directory="physiotherapy", html=True), name="static")
+app.mount("/", StaticFiles(directory="frontend/physiotherapy", html=True), name="static")
 
 # Root endpoint
 @app.get("/")
 async def root():
-    return FileResponse("physiotherapy/index.html")
+    return FileResponse("frontend/physiotherapy/index.html")
 
 if __name__ == "__main__":
     import uvicorn
