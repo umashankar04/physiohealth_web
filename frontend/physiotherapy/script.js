@@ -42,6 +42,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Set minimum date for appointment
   setMinimumDate();
+
+  // Chatbot
+  initChatbot();
 });
 
 // ====================
@@ -599,3 +602,153 @@ document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
     }
   });
 });
+
+// ====================
+// Chatbot
+// ====================
+function initChatbot() {
+  const chatbotToggle = document.getElementById("chatbot-toggle");
+  const chatbotWidget = document.getElementById("chatbot-widget");
+  const chatbotClose = document.getElementById("chatbot-close");
+  const chatbotSend = document.getElementById("chatbot-send");
+  const chatbotInput = document.getElementById("chatbot-input");
+  const chatbotMessages = document.getElementById("chatbot-messages");
+  const quickReplies = document.querySelectorAll(".quick-reply");
+
+  // Toggle chat widget
+  chatbotToggle.addEventListener("click", () => {
+    chatbotWidget.classList.toggle("active");
+    chatbotToggle.classList.toggle("active");
+    if (chatbotWidget.classList.contains("active")) {
+      chatbotInput.focus();
+    }
+  });
+
+  // Close chat widget
+  chatbotClose.addEventListener("click", () => {
+    chatbotWidget.classList.remove("active");
+    chatbotToggle.classList.remove("active");
+  });
+
+  // Send message
+  chatbotSend.addEventListener("click", sendMessage);
+  chatbotInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") sendMessage();
+  });
+
+  // Quick reply buttons
+  quickReplies.forEach((button) => {
+    button.addEventListener("click", () => {
+      const query = button.getAttribute("data-query");
+      chatbotInput.value = query;
+      sendMessage();
+    });
+  });
+
+  function sendMessage() {
+    const message = chatbotInput.value.trim();
+    if (!message) return;
+
+    // Display user message
+    addMessage(message, "user");
+    chatbotInput.value = "";
+
+    // Get bot response
+    getBotResponse(message);
+  }
+
+  function addMessage(text, sender) {
+    const messageDiv = document.createElement("div");
+    messageDiv.className = `chatbot-message ${
+      sender === "user" ? "user-message" : "bot-message"
+    }`;
+
+    const bubble = document.createElement("div");
+    bubble.className = "message-bubble";
+    bubble.innerHTML = `<p>${escapeHtml(text)}</p>`;
+
+    messageDiv.appendChild(bubble);
+    chatbotMessages.appendChild(messageDiv);
+    chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+
+    // Save message to history
+    saveChatMessage(text, sender);
+  }
+
+  function getBotResponse(userMessage) {
+    // Show typing indicator
+    const typingDiv = document.createElement("div");
+    typingDiv.className = "chatbot-message bot-message";
+    typingDiv.innerHTML =
+      '<div class="message-bubble"><p>⏱️ Typing...</p></div>';
+    chatbotMessages.appendChild(typingDiv);
+    chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+
+    // Call backend API
+    fetch("/api/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        message: userMessage,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        // Remove typing indicator
+        typingDiv.remove();
+
+        // Add bot response
+        addMessage(data.response, "bot");
+
+        // Add suggested actions if provided
+        if (data.suggestedActions && data.suggestedActions.length > 0) {
+          const actionsDiv = document.createElement("div");
+          actionsDiv.className = "chatbot-message bot-message";
+          const bubble = document.createElement("div");
+          bubble.className = "message-bubble";
+
+          const buttonsHTML = data.suggestedActions
+            .map(
+              (action) =>
+                `<button class="quick-reply" onclick="document.getElementById('chatbot-input').value='${escapeHtml(action)}'; document.getElementById('chatbot-send').click();">${action}</button>`
+            )
+            .join("");
+
+          bubble.innerHTML = `<div class="quick-replies">${buttonsHTML}</div>`;
+          actionsDiv.appendChild(bubble);
+          chatbotMessages.appendChild(actionsDiv);
+          chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        typingDiv.remove();
+        addMessage(
+          "Sorry, I couldn't process your request. Please try again.",
+          "bot"
+        );
+      });
+  }
+
+  function saveChatMessage(message, sender) {
+    let chatHistory = JSON.parse(
+      localStorage.getItem("chatHistory") || "[]"
+    );
+    chatHistory.push({
+      message: message,
+      sender: sender,
+      timestamp: new Date().toISOString(),
+    });
+    localStorage.setItem("chatHistory", JSON.stringify(chatHistory));
+  }
+}
+
+// Escape HTML to prevent XSS
+function escapeHtml(text) {
+  const div = document.createElement("div");
+  div.textContent = text;
+  return div.innerHTML;
+}
+

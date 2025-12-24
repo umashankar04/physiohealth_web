@@ -1017,6 +1017,44 @@
       </div>
     </div>
 
+    <!-- Chatbot Widget -->
+    <div id="chatbot-widget" class="chatbot-widget">
+      <div class="chatbot-header">
+        <div class="chatbot-title">
+          <i class="fas fa-comments"></i>
+          <span>PhysioBot</span>
+        </div>
+        <button id="chatbot-close" class="chatbot-close">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="chatbot-messages" id="chatbot-messages">
+        <div class="chatbot-message bot-message">
+          <div class="message-bubble">
+            <p>👋 Hi! Welcome to PhysioHealth. How can I help you today?</p>
+            <div class="quick-replies">
+              <button class="quick-reply" data-query="Book Appointment">📅 Book Appointment</button>
+              <button class="quick-reply" data-query="Services">🏥 Services</button>
+              <button class="quick-reply" data-query="Pricing">💰 Pricing</button>
+              <button class="quick-reply" data-query="Contact">📞 Contact</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="chatbot-input">
+        <input type="text" id="chatbot-input" placeholder="Type your message..." />
+        <button id="chatbot-send" class="chatbot-send">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Chatbot Toggle Button -->
+    <button id="chatbot-toggle" class="chatbot-toggle">
+      <i class="fas fa-comments"></i>
+      <span class="notification-badge">1</span>
+    </button>
+
     <!-- AOS Animation Library -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <!-- GSAP for Advanced Animations -->

@@ -328,6 +328,85 @@ async def get_clinic_info():
         }
     }
 
+# Chatbot responses knowledge base
+CHATBOT_RESPONSES = {
+    "book appointment": {
+        "response": "I'd love to help you book an appointment! 📅 To get started, please click the 'Book Appointment' button in our website or provide your preferred date, time, and service. Our team will confirm availability soon.",
+        "suggestedActions": ["View Services", "Check Pricing", "Contact Us"]
+    },
+    "services": {
+        "response": "We offer 6 main services: 1) Orthopedic Physiotherapy - ₹1000, 2) Sports Injury Rehab - ₹1500, 3) Neurological PT - ₹2000, 4) Post-Surgical Rehab - ₹1200, 5) Pediatric PT - ₹1500, 6) Geriatric PT - ₹2500. Which service interests you?",
+        "suggestedActions": ["See Pricing", "Book Appointment", "Ask More"]
+    },
+    "pricing": {
+        "response": "Our pricing ranges from ₹1000 to ₹2500 per session depending on the service. Regular patients receive a 30% discount! 💰 For detailed pricing, please visit our services section or contact us directly.",
+        "suggestedActions": ["Book Appointment", "Contact Us", "View Services"]
+    },
+    "contact": {
+        "response": "You can reach us at: 📞 Phone: +91-XXXXXXX, 📧 Email: info@physiohealth.com, 🏥 Address: PhysioHealth Clinic, City Center. We're available Mon-Sat, 9 AM - 6 PM.",
+        "suggestedActions": ["Book Appointment", "View Services", "Feedback"]
+    },
+    "feedback": {
+        "response": "We'd love to hear your feedback! 😊 Please share your experience or any suggestions to help us improve our services.",
+        "suggestedActions": ["Book Appointment", "Contact Us", "View Services"]
+    },
+    "review": {
+        "response": "Thank you for considering a review! 🌟 We appreciate your feedback. You can share your experience with us directly through our contact form or via phone.",
+        "suggestedActions": ["Provide Feedback", "Contact Us", "Book Appointment"]
+    },
+    "discount": {
+        "response": "Yes! Regular patients get a 30% discount on all services! 🎉 To qualify, you need to have at least 2 previous appointments with us. Your discount is automatically applied at checkout.",
+        "suggestedActions": ["Book Appointment", "View Pricing", "Contact Us"]
+    },
+    "default": {
+        "response": "Thank you for your question! 👋 I'm here to help. Please feel free to ask about our services, pricing, booking appointments, or anything else you'd like to know.",
+        "suggestedActions": ["Book Appointment", "Services", "Pricing", "Contact"]
+    }
+}
+
+@app.post("/api/chat")
+async def chat(request: dict):
+    """Chatbot endpoint for answering queries and collecting feedback"""
+    try:
+        user_message = request.get("message", "").lower().strip()
+        
+        # Find matching response
+        response = CHATBOT_RESPONSES["default"].copy()
+        
+        for keyword, bot_response in CHATBOT_RESPONSES.items():
+            if keyword != "default" and keyword in user_message:
+                response = bot_response.copy()
+                break
+        
+        # Save chat message to file
+        chat_file = "data/chat_history.json"
+        chat_data = {
+            "message": request.get("message"),
+            "response": response["response"],
+            "timestamp": datetime.now().isoformat()
+        }
+        
+        try:
+            with open(chat_file, "r") as f:
+                chat_history = json.load(f)
+        except FileNotFoundError:
+            chat_history = []
+        
+        chat_history.append(chat_data)
+        
+        with open(chat_file, "w") as f:
+            json.dump(chat_history, f, indent=2)
+        
+        return {
+            "response": response["response"],
+            "suggestedActions": response.get("suggestedActions", [])
+        }
+    except Exception as e:
+        return {
+            "response": f"I encountered an error: {str(e)}. Please try again or contact us directly.",
+            "suggestedActions": ["Contact Us"]
+        }
+
 # Serve static files
 app.mount("/", StaticFiles(directory="frontend/physiotherapy", html=True), name="static")
 
