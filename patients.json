@@ -1,0 +1,52 @@
+[
+  {
+    "patient_id": 1,
+    "name": "Ramesh Kumar",
+    "age": 45,
+    "gender": "Male",
+    "disease": "Diabetes",
+    "blood_group": "B+",
+    "admission_date": "2025-01-10",
+    "readmitted": false
+  },
+  {
+    "patient_id": 2,
+    "name": "Sita Das",
+    "age": 32,
+    "gender": "Female",
+    "disease": "Pneumonia",
+    "blood_group": "O+",
+    "admission_date": "2025-01-15",
+    "readmitted": true
+  },
+  {
+    "patient_id": 3,
+    "name": "Anil Patnaik",
+    "age": 60,
+    "gender": "Male",
+    "disease": "Heart Disease",
+    "blood_group": "A+",
+    "admission_date": "2025-02-02",
+    "readmitted": false
+  },
+  {
+    "patient_id": 4,
+    "name": "Kavita Mohanty",
+    "age": 28,
+    "gender": "Female",
+    "disease": "Anemia",
+    "blood_group": "AB+",
+    "admission_date": "2025-02-12",
+    "readmitted": false
+  },
+  {
+    "patient_id": 5,
+    "name": "Suresh Nayak",
+    "age": 52,
+    "gender": "Male",
+    "disease": "Gastric Cancer",
+    "blood_group": "O-",
+    "admission_date": "2025-03-01",
+    "readmitted": true
+  }
+]
